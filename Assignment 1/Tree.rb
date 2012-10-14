@@ -1,3 +1,5 @@
+require_relative 'Algorithms.rb'
+
 class Node
 	attr_reader :e, :children
 	# Daughters can be used to reorder child nodes
@@ -28,7 +30,6 @@ class Node
 	def to_s
 		@e
 	end
-
 	def print_r prefix=""
 		puts "#{prefix}#{@e}"
 		if @children 
@@ -38,3 +39,9 @@ class Node
 		end
 	end
 end
+
+
+
+n = Node.new 2, 7, 15
+n.print_r
+puts Negamax n, 7
