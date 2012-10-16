@@ -1,16 +1,13 @@
-require_relative 'Algorithms.rb'
-
 class Node
 	attr_reader :e, :children
 	# Daughters can be used to reorder child nodes
-	attr_accessor :daughters, :pv
+	attr_accessor :daughters
 
 	def initialize b, d, approx, _t=nil
 		random = lambda {|min, max| rand((max - min).abs)+min }
 		new_node = lambda {|__t| Node.new b,d-1,approx,__t}
 		t = (_t or random.call(-250, 250))
-		
-		@pv = []
+
 		@e = t
 		@children = []
 
@@ -39,10 +36,15 @@ class Node
 			end
 		end
 	end
+	def reorder
+		if @daughters.length != 0
+			@daughters.sort! do |x,y|
+				x.e <=> y.e
+			end
+			@daughters[0].reorder
+		end
+	end
+	def reset_daughters
+		@daughters = Array.new @children
+	end
 end
-
-
-
-n = Node.new 2, 7, 15
-n.print_r
-puts negamax_alpha_beta n, 2
