@@ -4,6 +4,6 @@ require_relative 'Tree.rb'
 
 
 
-n = Node.new 2, 7, 15
-n.print_r
-puts negamax_alpha_beta n, 2
+n = Node.new 2, 4, 15
+p negamax_alpha_beta n, 2
+p iterative_negamax_alpha_beta n, 2
