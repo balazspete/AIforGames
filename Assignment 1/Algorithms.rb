@@ -26,7 +26,7 @@ end
 def iterative_negamax_alpha_beta node, height, achievable=-INFINITY, hope=INFINITY, count=0
 	pv = []
 	(0..height).each do |h|
-		achievable, pv, count = negamax_alpha_beta node, height, achievable=-INFINITY, hope=INFINITY, count
+		achievable, pv, count = negamax_alpha_beta node, height, achievable, hope, count
 	end
 	[achievable, pv, count]
 end
