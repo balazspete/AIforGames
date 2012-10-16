@@ -28,20 +28,27 @@ class Node
 	def to_s
 		"<Node:#{@e}>"
 	end
-	def print_r prefix=""
+	def print_r prefix="", daughters=false
 		puts "#{prefix}#{@e}"
 		if @children 
-			@children.each do |child|
-				child.print_r "#{prefix}\t"
+			(daughters ? @daughters : @children).each do |child|
+				child.print_r "#{prefix}\t", daughters
 			end
 		end
 	end
-	def reorder
+	def reorder best=nil
+		if !best
+			best = lambda {|d1, d2| d1.e < d2.e}
+		end
+
 		if @daughters.length != 0
-			@daughters.sort! do |x,y|
-				x.e <=> y.e
+			index = 0
+			(0...@daughters.length).each do |i|
+				if best.call @daughters[i], @daughters[index]
+					index = i
+				end
 			end
-			@daughters[0].reorder
+			@daughters.unshift(@daughters.delete_at index)[0].reorder !best
 		end
 	end
 	def reset_daughters
