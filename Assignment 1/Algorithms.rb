@@ -1,3 +1,9 @@
+# Algorithms.rb
+# ---
+# Author:
+# Balázs Pete
+# 09771417
+
 INFINITY = 1.0/0
 
 def negamax_alpha_beta node, height, achievable=-INFINITY, hope=INFINITY, count=0
@@ -9,7 +15,8 @@ def negamax_alpha_beta node, height, achievable=-INFINITY, hope=INFINITY, count=
 	else
 		pv = []
 		node.daughters.each do |daughter|
-			temp, _pv, count = neg.call negamax_alpha_beta daughter, height-1, -hope, -achievable, count
+			temp, _pv, count =
+			neg.call negamax_alpha_beta daughter, height-1, -hope, -achievable, count
 			if temp >= hope
 				return _return.call temp, _pv
 			end
@@ -22,7 +29,7 @@ def negamax_alpha_beta node, height, achievable=-INFINITY, hope=INFINITY, count=
 	end
 end
 
-def iterative_negamax_alpha_beta node, height, achievable=-INFINITY, hope=INFINITY, count=0
+def iterative_negamax_alpha_beta node,height,achievable=-INFINITY,hope=INFINITY,count=0
 	pv = []
 	(0..height).each do |h|
 		achievable, pv, count = negamax_alpha_beta node, height, achievable, hope, count
@@ -46,11 +53,10 @@ def pvs node, depth, alpha=-INFINITY, beta=INFINITY, count=0
 				temp, _pv, count = neg.call pvs daughter, depth-1, -ub, -lb, count
 
 				if temp >= ub and temp < beta
-					temp, _pv, count = neg.call pvs daughter, depth-1, -beta, -temp, count
+					temp, _pv, count=neg.call pvs daughter, depth-1, -beta, -temp, count
 				end
 				score = [score, temp].max
 				if temp >= beta
-
 					pv = _pv.unshift daughter
 					break
 				end

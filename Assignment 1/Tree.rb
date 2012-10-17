@@ -1,3 +1,9 @@
+# Tree.rb
+# ---
+# Author:
+# Balázs Pete
+# 09771417
+
 class Node
 	attr_reader :e, :children
 	# Daughters can be used to reorder child nodes
@@ -40,7 +46,6 @@ class Node
 		if !best
 			best = lambda {|d1, d2| d1.e < d2.e}
 		end
-
 		if @daughters.length != 0
 			index = 0
 			(0...@daughters.length).each do |i|
@@ -53,5 +58,8 @@ class Node
 	end
 	def reset_daughters
 		@daughters = Array.new @children
+		@children.each do |child|
+			child.reset_daughters
+		end
 	end
 end
