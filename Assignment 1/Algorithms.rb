@@ -31,7 +31,6 @@ def iterative_negamax_alpha_beta node, height, achievable=-INFINITY, hope=INFINI
 end
 
 def pvs node, depth, alpha=-INFINITY, beta=INFINITY, count=0
-	puts depth
 	neg = lambda {|arr| [-arr[0], arr[1], arr[2]]}
 	_return = lambda {|r, pv| [r, pv, count +1]}
 
@@ -64,7 +63,7 @@ end
 def iterative_pvs node, depth, alpha=-INFINITY, beta=INFINITY, count=0
 	score, pv = 0, []
 	(0..depth).each do |h|
-		score, pv, count = iterative_pvs node, depth, alpha, beta, count
+		score, pv, count = pvs node, depth, alpha, beta, count
 	end
 	[score, pv, count]
 end
