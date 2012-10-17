@@ -14,7 +14,7 @@ class Node
 		if d > 1
 			@e = t + random.call(-approx, approx)
 			@children = [new_node.call(-(t or t))]
-			(b-1).times do 
+			(b-1).times do
 				if [true,false].sample
 					@children.unshift new_node.call(random.call(-t, 1000))
 				else
@@ -30,7 +30,7 @@ class Node
 	end
 	def print_r prefix="", daughters=false
 		puts "#{prefix}#{@e}"
-		if @children 
+		if @children
 			(daughters ? @daughters : @children).each do |child|
 				child.print_r "#{prefix}\t", daughters
 			end
