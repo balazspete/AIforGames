@@ -15,13 +15,11 @@ def experiment b, d, a
 		node = Node.new b, d, a
 		negamax_without = concat.call negamax_without, iterative_negamax_alpha_beta(node, d)
 		node.reset_daughters
-		node.reorder
-		negamax_with = concat.call negamax_with, iterative_negamax_alpha_beta(node, d)
+		negamax_with = concat.call negamax_with, iterative_negamax_alpha_beta(node, d, true)
 		node.reset_daughters
 		pvs_without = concat.call pvs_without, iterative_pvs(node, d)
 		node.reset_daughters
-		node.reorder
-		pvs_with = concat.call pvs_with, iterative_pvs(node, d)
+		pvs_with = concat.call pvs_with, iterative_pvs(node, d, true)
 	end
 
 	puts "Negamax a-b (without):\t#{negamax_without}"
