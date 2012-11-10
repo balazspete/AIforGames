@@ -13,19 +13,18 @@ def experiment b, d, a
 
 	25.times do
 		node = Node.new b, d, a
-		negamax_without = concat.call negamax_without, iterative_negamax_alpha_beta(node, d)
+		negamax_without = 
+		concat.call negamax_without, iterative_negamax_alpha_beta(node, d)
 		node.reset_daughters
-		negamax_with = concat.call negamax_with, iterative_negamax_alpha_beta(node, d, true)
+		negamax_with = 
+		concat.call negamax_with, iterative_negamax_alpha_beta(node, d, true)
 		node.reset_daughters
 		pvs_without = concat.call pvs_without, iterative_pvs(node, d)
 		node.reset_daughters
 		pvs_with = concat.call pvs_with, iterative_pvs(node, d, true)
 	end
 
-	puts "Negamax a-b (without):\t#{negamax_without}"
-	puts "Negamax a-b (with):\t#{negamax_with}"
-	puts "PVS (without):\t\t#{pvs_without}"
-	puts "PVS (with):\t\t#{pvs_with}"
+	return "#{negamax_without}\t#{negamax_with}\t#{pvs_without}\t#{pvs_with}"
 end
 
 def get_input
@@ -38,5 +37,21 @@ def get_input
 	[b, d, a]
 end
 
-input = get_input
-experiment input[0], input[1], input[2]
+# input = get_input
+# p experiment input[0], input[1], input[2]
+
+# node = Node.new 2, 5, 30
+# node.reorder
+# node.print_r "", true
+# node.reset_daughters
+# node.print_r "", true
+
+
+
+(4..8).each do |b|
+	(3..9).each do |d|
+		(0..6).each do |a|
+			puts "b:#{b} d:#{d} a:#{a*5}\t\t#{experiment b, d, a*5}"
+		end
+	end
+end
