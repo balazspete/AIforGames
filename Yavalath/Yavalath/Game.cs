@@ -25,7 +25,8 @@ namespace Yavalath
 
         private void NextPlayer() 
         {
-
+            var next = Players.Where(p => p.Value != Players[CurrentPlayer]).Select(p => p.Key);
+            CurrentPlayer = next;
         }
 	}
 }
