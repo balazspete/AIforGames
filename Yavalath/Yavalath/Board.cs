@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Data.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -82,6 +83,8 @@ namespace Yavalath
 			new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 		};
 
+        public Cell Latest {get; private set;}
+
 		public Board ()
 		{
 			int i = 0, j = 0;
@@ -104,9 +107,10 @@ namespace Yavalath
 				indent(indentation);
 				Console.Write("  ");
 				foreach (var cell in row) {
-					Console.Write(cell.PieceSymbol());
+                    var symbol = cell.PieceSymbol();
+					Console.Write(symbol);
 					Console.Write(' ');
-					Console.Write(new int[]{ 4, 5, 6, 7 }.Contains(cell.Border) ? "| " : " ");
+					Console.Write(new int[]{ 4, 5, 6, 7 }.Contains(cell.Border) ? (symbol == ' ' ? " |" : "|") : " ");
 					Console.Write(' ');
 				}
 				Console.WriteLine();
@@ -121,43 +125,68 @@ namespace Yavalath
 				Console.WriteLine();
 				indentation += 2;
 			}
-			Console.WriteLine("Next is ...");
-
 		}
 
-		public Cell[] this [int row] {
-			get {
-				return Cells [row];
-			}
-			private set {}
-		}
+        /// <summary>
+        /// Gets the <see cref="Yavalath.Board"/> at the specified index.
+        /// </summary>
+        /// <param name='index'>
+        /// Index.
+        /// </param>
+        public Cell this [int index]
+        {
+            get
+            {
+                return Cells[index/11][index%11];
+            }
+        }
 
+        /// <summary>
+        /// Takes the cell.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c>, if cell was taken, <c>false</c> otherwise.
+        /// </returns>
+        /// <param name='cellCoords'>
+        /// Cell coords.
+        /// </param>
+        /// <param name='player'>
+        /// Player.
+        /// </param>
 		public bool TakeCell (string cellCoords = "", int player = 0)
 		{
 			if (cellCoords.Length < 2 || cellCoords.Length > 3)
 				return false;
 
 			try {
-				var row = cellCoords.Substring (0, 1).ToUpper ().ElementAt (0) - 'A';
-				var col = Convert.ToInt32 (cellCoords.Substring (1));
+				var row = cellCoords.Substring (0, 1).ToUpper ().ElementAt (0) - 'A' + 1;
+				var col = Convert.ToInt32 (cellCoords.Substring (1)) -1;
 
-				Cell cell = Cells[row].SelectMany(c => c.Playable)[col];
+				var cells = Cells[row].ToList();
+                var cell = cells.Where(c => c.Playable).ElementAt(col);
 
 				if(cell.Player != 0) return false;
+
 				cell.Player = player;
+                Latest = cell;
 
 				return true;
-			} catch (Exception e) {
-				Console.Write("Error... YAY");
+			} catch (Exception) {
+				Console.WriteLine("Error... YAY");
 				return false;
 			}
-
-			return false;
 		}
 
 		static void Main ()
 		{
-			new Board().Print();
+			var b = new Board();
+			b.Print();
+			b.TakeCell("A1", -1);
+			b.TakeCell("D4", 1);
+            b.TakeCell("I6", 1);
+            b.TakeCell("I3", 1);
+			b.Print();
+            Console.WriteLine("{0} {1}", b[16].Player, b[16].Border);
 		}
 	}
 }
