@@ -1,3 +1,11 @@
+/*
+ * Board.cs
+ * 
+ * Balazs Pete
+ * 09771417
+ * 
+ */
+
 using System;
 using System.Linq;
 using System.Data.Linq;
@@ -33,6 +41,12 @@ namespace Yavalath
 				Player = player;
 			}
 
+            /// <summary>
+            /// Gets the symbol representation of the piece corresponding to the player
+            /// </summary>
+            /// <returns>
+            /// The player's symbol character or ' '.
+            /// </returns>
 			public char PieceSymbol ()
 			{
 				if (Player == 0) return ' ';
@@ -40,6 +54,12 @@ namespace Yavalath
 				return 'O';
 			}
 		}
+
+        public struct CellIndex 
+        {
+            public Cell Cell;
+            public int Index;
+        }
 
 		private Cell[][] Cells = new Cell[][]{
 			new Cell[11],
@@ -83,8 +103,17 @@ namespace Yavalath
 			new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 		};
 
-        public Cell Latest {get; private set;}
+        /// <summary>
+        /// Gets the last modified cell with its index.
+        /// </summary>
+        /// <value>
+        /// The latest modified cell.
+        /// </value>
+        public CellIndex Latest {get; private set;}
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Yavalath.Board"/> class.
+        /// </summary>
 		public Board ()
 		{
 			int i = 0, j = 0;
@@ -98,33 +127,50 @@ namespace Yavalath
 		/// <summary>
 		/// Output the current state of the Board
 		/// </summary>
-		public void Print ()
-		{
-			Func<int, int> indent = delegate(int x){while(x-- > 0) Console.Write(" "); return 0;}; 
+		public void Print()
+        {
+            Func<int, int> indent = delegate(int x)
+            {
+                while (x-- > 0)
+                    Console.Write(" ");
+                return 0;
+            }; 
 
-			var indentation = 0;
-			foreach (var row in Cells) {
-				indent(indentation);
-				Console.Write("  ");
-				foreach (var cell in row) {
+            var indentation = 0;
+            foreach (var row in Cells)
+            {
+                indent(indentation);
+                Console.Write("  ");
+                foreach (var cell in row)
+                {
                     var symbol = cell.PieceSymbol();
-					Console.Write(symbol);
-					Console.Write(' ');
-					Console.Write(new int[]{ 4, 5, 6, 7 }.Contains(cell.Border) ? (symbol == ' ' ? " |" : "|") : " ");
-					Console.Write(' ');
-				}
-				Console.WriteLine();
-				indent(indentation);
-				Console.Write(" ");
-				foreach (var cell in row) {
-					Console.Write(new int[]{ 2, 3, 6, 7 }.Contains(cell.Border) ? '\\' : ' ');
-					Console.Write(' ');
-					Console.Write(new int[]{ 1, 3, 5, 7 }.Contains(cell.Border) ? '/' : ' ');
-					Console.Write(' ');
-				}
-				Console.WriteLine();
-				indentation += 2;
-			}
+                    Console.Write(symbol);
+                    Console.Write(' ');
+                    Console.Write(new int[]{ 4, 5, 6, 7 }.Contains(cell.Border) ? "|" : " ");
+                    Console.Write(' ');
+                }
+                Console.WriteLine();
+                indent(indentation);
+                Console.Write(" ");
+                foreach (var cell in row)
+                {
+                    Console.Write(new int[]{ 2, 3, 6, 7 }.Contains(cell.Border) ? '\\' : ' ');
+                    Console.Write(' ');
+                    Console.Write(new int[]{ 1, 3, 5, 7 }.Contains(cell.Border) ? '/' : ' ');
+                    Console.Write(' ');
+                }
+                Console.WriteLine();
+                indentation += 2;
+            }
+            Console.WriteLine();
+            foreach (var row in Cells)
+            {
+                foreach(var cell in row)
+                {
+                    Console.Write(cell.Player + "\t");
+                }
+                Console.WriteLine();
+            }
 		}
 
         /// <summary>
@@ -153,9 +199,15 @@ namespace Yavalath
         /// <param name='player'>
         /// Player.
         /// </param>
-		public bool TakeCell (string cellCoords = "", int player = 0)
-		{
-			if (cellCoords.Length < 2 || cellCoords.Length > 3)
+		public bool TakeCell(string cellCoords, int player = 0, bool takeOver = false)
+        {
+            if (takeOver && cellCoords.ToLower() == "takeover")
+            {
+                Latest.Cell.Player = player;
+                return true;
+            }
+
+            if (cellCoords.Length < 2 || cellCoords.Length > 3)
 				return false;
 
 			try {
@@ -163,30 +215,19 @@ namespace Yavalath
 				var col = Convert.ToInt32 (cellCoords.Substring (1)) -1;
 
 				var cells = Cells[row].ToList();
-                var cell = cells.Where(c => c.Playable).ElementAt(col);
+                var playableCells = cells.Where(c => c.Playable).ToArray();
+                Cell cell = playableCells.ElementAt(col);
 
 				if(cell.Player != 0) return false;
 
 				cell.Player = player;
-                Latest = cell;
+                Latest = new CellIndex {Cell = cell, Index = row*11 + (10 - playableCells.Length + col)};
 
 				return true;
 			} catch (Exception) {
 				Console.WriteLine("Error... YAY");
 				return false;
 			}
-		}
-
-		static void Main ()
-		{
-			var b = new Board();
-			b.Print();
-			b.TakeCell("A1", -1);
-			b.TakeCell("D4", 1);
-            b.TakeCell("I6", 1);
-            b.TakeCell("I3", 1);
-			b.Print();
-            Console.WriteLine("{0} {1}", b[16].Player, b[16].Border);
 		}
 	}
 }
