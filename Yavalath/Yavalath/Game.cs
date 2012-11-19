@@ -32,6 +32,9 @@ namespace Yavalath
             CurrentPlayer = player1;
 		}
 
+        /// <summary>
+        /// Run the game.
+        /// </summary>
         public void Run()
         {
             var round = 0;
@@ -51,13 +54,12 @@ namespace Yavalath
                         .Where(p => p.Value == (result.Value ? 1 : -1) * Players[CurrentPlayer]).ToArray();
                     Console.WriteLine(
                         "\n{0} has won the game!", 
-                        winner.First().Key.Name
-                        );
+                        winner.First().Key.Name);
                     return;
                 }
 
                 NextPlayer();
-                Console.WriteLine("\nIt's {0}'s move...\n", CurrentPlayer.Name);
+                Console.WriteLine("\nIt's {0}'s turn...", CurrentPlayer.Name);
 
             }
         }
@@ -134,15 +136,6 @@ namespace Yavalath
         {
             var game = new Game(new HumanPlayer("1"), new HumanPlayer("2"));
             game.Run();
-
-//            var b = new Board();
-//            b.Print();
-//            b.TakeCell("A1", -1);
-//            b.TakeCell("D4", 1);
-//            b.TakeCell("I6", 1);
-//            b.TakeCell("I3", 1);
-//            b.Print();
-//            Console.WriteLine("{0} {1}", b[16].Player, b[16].Border);
         }
 	}
 }
