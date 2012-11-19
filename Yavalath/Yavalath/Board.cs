@@ -162,15 +162,6 @@ namespace Yavalath
                 Console.WriteLine();
                 indentation += 2;
             }
-            Console.WriteLine();
-            foreach (var row in Cells)
-            {
-                foreach(var cell in row)
-                {
-                    Console.Write(cell.Player + "\t");
-                }
-                Console.WriteLine();
-            }
 		}
 
         /// <summary>
@@ -185,6 +176,65 @@ namespace Yavalath
             {
                 return Cells[index/11][index%11];
             }
+        }
+
+        public Cell[][] UpDiagonals()
+        {
+            List<Cell[]> re = new List<Cell[]>();
+            int[] indexes = new int[]{ 56, 67, 78, 89, 100, 101, 102, 103, 104 };
+            
+            foreach (var i in indexes)
+            {
+                re.Add(line (i, -10));
+            }
+            
+            return re.ToArray();
+        }
+
+        public Cell[][] DownDiagonals()
+        {
+            List<Cell[]> re = new List<Cell[]>();
+            int[] indexes = new int[]{ 56, 46, 36, 26, 16, 17, 18, 19, 20 };
+
+            foreach (var i in indexes)
+            {
+                re.Add(line (i, 11));
+            }
+
+            return re.ToArray();
+        }
+
+        public Cell[][] Rows()
+        {
+            List<Cell[]> re = new List<Cell[]>();
+            var i = 16;
+            while (i <= 100)
+            {
+                re.Add(line (i, 1));
+                i += 10;
+            }
+
+            return re.ToArray();
+        }
+
+        private Cell[] line(int index, int offset)
+        {
+            var cell = this [index];
+            List<Cell> r = new List<Cell>();
+            
+            while ((cell = this[index]) !=  null && cell.Playable)
+            {
+                r.Add(cell);
+                index += offset;
+            }
+
+            return r.ToArray();
+        }
+
+
+        private Cell NextCell(int index, int offset)
+        {
+            return this[index + offset];
         }
 
         /// <summary>
