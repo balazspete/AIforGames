@@ -21,6 +21,7 @@ namespace Yavalath
 			public int Border {get; private set;}
 			public bool Playable {get; private set;}
 			public int Player {get; set;}
+			public string Position {get; private set;}
 
 			/// <summary>
 			/// Initializes a new instance of the <see cref="Yavalath.Board+Cell"/> class.
@@ -34,11 +35,12 @@ namespace Yavalath
 			/// <param name='player'>
 			/// Indicates which player takes up the cell
 			/// </param>
-			public Cell (int border, bool playable = false, int player = 0)
+			public Cell (int border, bool playable = false, string position = "", int player = 0)
 			{
 				Border = border;
 				Playable = playable;
 				Player = player;
+				Position = position;
 			}
 
             /// <summary>
@@ -118,8 +120,11 @@ namespace Yavalath
 		{
 			int i = 0, j = 0;
 			for (i = 0; i < 11; i++) {
+				var c = 0;
 				for (j = 0; j < 11; j++) {
-					Cells[i][j] = new Cell(Borders[i][j], PlayableCells[i][j] == 1);
+					var playable = PlayableCells[i][j] == 1;
+					if(playable) c++;
+					Cells[i][j] = new Cell(Borders[i][j], playable, playable ? String.Format("{0}{1}", (char)('A'-1+i), c) : "");
 				}
 			}
 		}
@@ -178,6 +183,17 @@ namespace Yavalath
             }
         }
 
+		public Cell[] EmptyCells ()
+		{
+			var list = new List<Cell>();
+			foreach (var cells in Cells) {
+				foreach (var cell in cells) {
+					if(cell.Playable && cell.Player == 0) list.Add(cell);
+				}
+			}
+			return list.ToArray();
+		}
+
         public Cell[][] UpDiagonals()
         {
             List<Cell[]> re = new List<Cell[]>();
@@ -208,7 +224,7 @@ namespace Yavalath
         {
             List<Cell[]> re = new List<Cell[]>();
             var i = 16;
-            while (i <= 100)
+            while (i <= 121)
             {
                 re.Add(line (i, 1));
                 i += 10;
@@ -279,6 +295,8 @@ namespace Yavalath
 				return false;
 			}
 		}
+
+
 	}
 }
 
