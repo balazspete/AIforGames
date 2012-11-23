@@ -4,6 +4,7 @@ namespace Yavalath
 {
 	public abstract class Player
 	{
+		public double Score = 0;
         public string Name {get; protected set;}
 
 		public abstract string GetNextMove(Board board = null, int playerSymbol = 0);
@@ -36,11 +37,14 @@ namespace Yavalath
 			Patterns = patterns;
 		}
 
+//		public static SearchResult Negamax (Board board, Cell cell, int player, int height, 
+//		                                    int oldscore = 0, Pattern[] patterns = null)
         public override string GetNextMove(Board board, int playerSymbol)
         {
-			var s = Algorithms.Negamax(board, null, playerSymbol, SearchDepth, Patterns).Cell.Position;
-			Console.WriteLine(s);
-			return s;
+			var s = Algorithms.Negamax(board, playerSymbol, SearchDepth, oldscore:Score, patterns:Patterns);
+			Score = s.Score;
+			Console.WriteLine(s.Cell.Position);
+			return s.Cell.Position;
         }
     }
 }

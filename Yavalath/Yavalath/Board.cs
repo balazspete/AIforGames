@@ -1,9 +1,9 @@
 /*
  * Board.cs
- * 
+ *
  * Balazs Pete
  * 09771417
- * 
+ *
  */
 
 using System;
@@ -14,95 +14,99 @@ using System.Collections.Generic;
 
 namespace Yavalath
 {
-	public class Board
+	public class Cell
 	{
-		public class Cell
+		public int Border {get; private set;}
+		public bool Playable {get; private set;}
+		public int Player {get; set;}
+		public string Position {get; private set;}
+		public int Index {get; private set;}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Yavalath.Board+Cell"/> class.
+		/// </summary>
+		/// <param name='border'>
+		/// Integer input determining the type of cell
+		/// </param>
+		/// <param name='playable'>
+		/// Integer indicating if cell is playable or not
+		/// </param>
+		/// <param name='player'>
+		/// Indicates which player takes up the cell
+		/// </param>
+		public Cell (int border, bool playable = false, int index = -1, string position = "", int player = 0)
 		{
-			public int Border {get; private set;}
-			public bool Playable {get; private set;}
-			public int Player {get; set;}
-			public string Position {get; private set;}
-
-			/// <summary>
-			/// Initializes a new instance of the <see cref="Yavalath.Board+Cell"/> class.
-			/// </summary>
-			/// <param name='border'>
-			/// Integer input determining the type of cell
-			/// </param>
-			/// <param name='playable'>
-			/// Integer indicating if cell is playable or not
-			/// </param>
-			/// <param name='player'>
-			/// Indicates which player takes up the cell
-			/// </param>
-			public Cell (int border, bool playable = false, string position = "", int player = 0)
-			{
-				Border = border;
-				Playable = playable;
-				Player = player;
-				Position = position;
-			}
-
-            /// <summary>
-            /// Gets the symbol representation of the piece corresponding to the player
-            /// </summary>
-            /// <returns>
-            /// The player's symbol character or ' '.
-            /// </returns>
-			public char PieceSymbol ()
-			{
-				if (Player == 0) return ' ';
-				else if (Player == -1) return 'X';
-				return 'O';
-			}
+			Border = border;
+			Playable = playable;
+			Player = player;
+			Position = position;
+			Index = index;
 		}
 
-        public struct CellIndex 
+		/// <summary>
+		/// Gets the symbol representation of the piece corresponding to the player
+		/// </summary>
+		/// <returns>
+		/// The player's symbol character or ' '.
+		/// </returns>
+		public char PieceSymbol ()
+		{
+			if (Player == 0) return ' ';
+			else if (Player == -1) return 'X';
+			return 'O';
+		}
+	}
+
+	public class Board : IEnumerable
+	{
+		private const int DIMENSION = 11;
+		private const int SIZE = 121;
+
+		#region IEnumerable implementation
+
+		public IEnumerator GetEnumerator ()
+		{
+			throw new NotImplementedException ();
+		}
+
+		#endregion
+
+
+
+        public struct CellIndex
         {
             public Cell Cell;
             public int Index;
         }
 
-		private Cell[][] Cells = new Cell[][]{
-			new Cell[11],
-			new Cell[11],
-			new Cell[11],
-			new Cell[11],
-			new Cell[11],
-			new Cell[11],
-			new Cell[11],
-			new Cell[11],
-			new Cell[11],
-			new Cell[11],
-			new Cell[11]
+		private Cell[] Cells = new Cell[SIZE];
+
+		private static int[] Borders = new int[] {
+			0, 0, 0, 0, 0, 1, 3, 3, 3, 3, 2,
+			 0, 0, 0, 0, 5, 7, 7, 7, 7, 7, 2,
+			  0, 0, 0, 5, 7, 7, 7, 7, 7, 7, 2,
+			   0, 0, 5, 7, 7, 7, 7, 7, 7, 7, 2,
+			    0, 5, 7, 7, 7, 7, 7, 7, 7, 7, 2,
+			     4, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0,
+			      4, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0,
+			       4, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0,
+			        4, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0,
+			         4, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0,
+			          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 		};
 
-		private static int[][] Borders = new int[][] {
-			new int[] { 0, 0, 0, 0, 0, 1, 3, 3, 3, 3, 2 },
-			new int[] { 0, 0, 0, 0, 5, 7, 7, 7, 7, 7, 2 },
-			new int[] { 0, 0, 0, 5, 7, 7, 7, 7, 7, 7, 2 },
-			new int[] { 0, 0, 5, 7, 7, 7, 7, 7, 7, 7, 2 },
-			new int[] { 0, 5, 7, 7, 7, 7, 7, 7, 7, 7, 2 },
-			new int[] { 4, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0 },
-			new int[] { 4, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0 },
-			new int[] { 4, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0 },
-			new int[] { 4, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0 },
-			new int[] { 4, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0 },
-			new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
-		};
-
-		private static int[][] PlayableCells = new int[][] {
-			new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-			new int[] { 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0 },
-			new int[] { 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0 },
-			new int[] { 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0 },
-			new int[] { 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0 },
-			new int[] { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 },
-			new int[] { 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 },
-			new int[] { 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 },
-			new int[] { 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 },
-			new int[] { 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 },
-			new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+		private static int[] PlayableCells = new int[] {
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0,
+			  0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0,
+			   0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0,
+			    0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+			     0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+			      0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+			       0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,
+			        0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
+			         0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+			          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 		};
 
         /// <summary>
@@ -118,15 +122,28 @@ namespace Yavalath
         /// </summary>
 		public Board ()
 		{
-			int i = 0, j = 0;
-			for (i = 0; i < 11; i++) {
-				var c = 0;
-				for (j = 0; j < 11; j++) {
-					var playable = PlayableCells[i][j] == 1;
-					if(playable) c++;
-					Cells[i][j] = new Cell(Borders[i][j], playable, playable ? String.Format("{0}{1}", (char)('A'-1+i), c) : "");
-				}
+//			int i = 0, j = 0;
+//			for (i = 0; i < 11; i++) {
+//				var c = 0;
+//				for (j = 0; j < 11; j++) {
+//					var playable = PlayableCells[i][j] == 1;
+//					if(playable) c++;
+//					Cells[i][j] = new Cell(Borders[i][j], playable, playable ? String.Format("{0}{1}", (char)('A'-1+i), c) : "");
+//				}
+//			}
+
+			var count = 0;
+			for(var i = 0; i < Cells.Length; i++) {
+				var playable = PlayableCells[i] == 1;
+				if(i % DIMENSION == 0) count = 1;
+				if(playable) count++;
+				Cells[i] = new Cell(Borders[i],
+					playable: playable,
+					index: i,
+				    position: playable ? String.Format("{0}{1}", (char)('A'-1+(i/DIMENSION)), count-1) : ""
+				);
 			}
+			var x = Cells;
 		}
 
 		/// <summary>
@@ -139,14 +156,18 @@ namespace Yavalath
                 while (x-- > 0)
                     Console.Write(" ");
                 return 0;
-            }; 
+            };
 
             var indentation = 0;
-            foreach (var row in Cells)
+			var row = 0;
+			while(row < DIMENSION)
             {
                 indent(indentation);
                 Console.Write("  ");
-                foreach (var cell in row)
+
+				var cellsInRow = Cells.Skip(row * DIMENSION).Take(DIMENSION);
+
+                foreach (var cell in cellsInRow)
                 {
                     var symbol = cell.PieceSymbol();
                     Console.Write(symbol);
@@ -157,7 +178,7 @@ namespace Yavalath
                 Console.WriteLine();
                 indent(indentation);
                 Console.Write(" ");
-                foreach (var cell in row)
+                foreach (var cell in cellsInRow)
                 {
                     Console.Write(new int[]{ 2, 3, 6, 7 }.Contains(cell.Border) ? '\\' : ' ');
                     Console.Write(' ');
@@ -166,6 +187,7 @@ namespace Yavalath
                 }
                 Console.WriteLine();
                 indentation += 2;
+				row++;
             }
 		}
 
@@ -179,79 +201,78 @@ namespace Yavalath
         {
             get
             {
-                return Cells[index/11][index%11];
+				if(index < 0 || index >= SIZE) return null;
+                return Cells[index];
             }
         }
+
+//		public Cell this [int index1, int index2] {
+//			get {
+//				return Cells[index1 * 11 + index2];
+//			}
+//		}
 
 		public Cell[] EmptyCells ()
 		{
-			var list = new List<Cell>();
-			foreach (var cells in Cells) {
-				foreach (var cell in cells) {
-					if(cell.Playable && cell.Player == 0) list.Add(cell);
-				}
-			}
-			return list.ToArray();
+			return Cells.Where(c => c.Playable && c.Player == 0).ToArray();
 		}
 
-        public Cell[][] UpDiagonals()
-        {
-            List<Cell[]> re = new List<Cell[]>();
-            int[] indexes = new int[]{ 56, 67, 78, 89, 100, 101, 102, 103, 104 };
-            
-            foreach (var i in indexes)
-            {
-                re.Add(line (i, -10));
-            }
-            
-            return re.ToArray();
-        }
+		public List<Cell> UpDiagonal(Cell cell)
+		{
+			return UpDiagonal(cell.Index);
+		}
 
-        public Cell[][] DownDiagonals()
-        {
-            List<Cell[]> re = new List<Cell[]>();
-            int[] indexes = new int[]{ 56, 46, 36, 26, 16, 17, 18, 19, 20 };
+		public List<Cell> UpDiagonal (int cellIndex)
+		{
+			var list = line (cellIndex, 10);
+			list.Reverse();
+			list.AddRange( line (cellIndex, -10));
+			return list;
+		}
 
-            foreach (var i in indexes)
-            {
-                re.Add(line (i, 11));
-            }
+		public List<Cell> DownDiagonal (Cell cell)
+		{
+			return UpDiagonal(cell.Index);
+		}
 
-            return re.ToArray();
-        }
+        public List<Cell> DownDiagonal (int cellIndex)
+		{
+			var list = line (cellIndex, -11);
+			list.Reverse();
+			list.AddRange( line (cellIndex, 11));
+			return list;
+		}
 
-        public Cell[][] Rows()
-        {
-            List<Cell[]> re = new List<Cell[]>();
-            var i = 16;
-            while (i <= 121)
-            {
-                re.Add(line (i, 1));
-                i += 10;
-            }
+		public List<Cell> Row (Cell cell)
+		{
+			return Row(cell.Index);
+		}
 
-            return re.ToArray();
-        }
+		public List<Cell> Row (int cellIndex)
+		{
+			return Cells.Skip((cellIndex/DIMENSION) * DIMENSION).Take(DIMENSION).ToList ();
+		}
 
-        private Cell[] line(int index, int offset)
+        private List<Cell> line(int index, int offset)
         {
             var cell = this [index];
-            List<Cell> r = new List<Cell>();
-            
-            while ((cell = this[index]) !=  null && cell.Playable)
+			List<Cell> r = new List<Cell>(){ cell };
+			index += offset;
+
+            while ((cell = this[index]) !=  null)
             {
                 r.Add(cell);
                 index += offset;
             }
 
-            return r.ToArray();
+            return r;
         }
 
 
-        private Cell NextCell(int index, int offset)
-        {
-            return this[index + offset];
-        }
+//        private Cell NextCell(int index, int offset)
+//        {
+//            return this[index + offset];
+//        }
 
         /// <summary>
         /// Takes the cell.
@@ -280,7 +301,7 @@ namespace Yavalath
 				var row = cellCoords.Substring (0, 1).ToUpper ().ElementAt (0) - 'A' + 1;
 				var col = Convert.ToInt32 (cellCoords.Substring (1)) -1;
 
-				var cells = Cells[row].ToList();
+				var cells = Cells.Skip(row * DIMENSION).Take(DIMENSION);
                 var playableCells = cells.Where(c => c.Playable).ToArray();
                 Cell cell = playableCells.ElementAt(col);
 

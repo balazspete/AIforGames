@@ -57,8 +57,6 @@ namespace Yavalath
                         winner.First().Key.Name);
                     return;
                 }
-				var i = Algorithms.Evaluation(GameBoard, Players[CurrentPlayer]);
-				Console.WriteLine ("Eval: {0}", i);
                 NextPlayer();
                 Console.WriteLine("\nIt's {0}'s turn...", CurrentPlayer.Name);
 
@@ -135,7 +133,7 @@ namespace Yavalath
         
         static void Main ()
         {
-            var game = new Game(new HumanPlayer("1"), new ComputerPlayer("2", 3));
+            var game = new Game(new HumanPlayer("1"), new ComputerPlayer("2", 1));
             game.Run();
         }
 	}
