@@ -57,26 +57,16 @@ namespace Yavalath
 		}
 	}
 
-	public class Board : IEnumerable
+	public class Board
 	{
 		private const int DIMENSION = 11;
 		private const int SIZE = 121;
-
-		#region IEnumerable implementation
-
-		public IEnumerator GetEnumerator ()
-		{
-			throw new NotImplementedException ();
-		}
-
-		#endregion
-
-
 
         public struct CellIndex
         {
             public Cell Cell;
             public int Index;
+			public double Score;
         }
 
 		private Cell[] Cells = new Cell[SIZE];
@@ -143,7 +133,6 @@ namespace Yavalath
 				    position: playable ? String.Format("{0}{1}", (char)('A'-1+(i/DIMENSION)), count-1) : ""
 				);
 			}
-			var x = Cells;
 		}
 
 		/// <summary>
@@ -206,11 +195,13 @@ namespace Yavalath
             }
         }
 
-//		public Cell this [int index1, int index2] {
-//			get {
-//				return Cells[index1 * 11 + index2];
-//			}
-//		}
+		public Cell this [int row, int column]
+		{
+			get
+			{
+				return this [row * DIMENSION + column];
+			}
+		}
 
 		public Cell[] EmptyCells ()
 		{
@@ -224,10 +215,7 @@ namespace Yavalath
 
 		public List<Cell> UpDiagonal (int cellIndex)
 		{
-			var list = line (cellIndex, 10);
-			list.Reverse();
-			list.AddRange( line (cellIndex, -10));
-			return list;
+			return line (cellIndex, 10);
 		}
 
 		public List<Cell> DownDiagonal (Cell cell)
@@ -237,10 +225,7 @@ namespace Yavalath
 
         public List<Cell> DownDiagonal (int cellIndex)
 		{
-			var list = line (cellIndex, -11);
-			list.Reverse();
-			list.AddRange( line (cellIndex, 11));
-			return list;
+			return line (cellIndex, -11); 
 		}
 
 		public List<Cell> Row (Cell cell)
@@ -253,26 +238,29 @@ namespace Yavalath
 			return Cells.Skip((cellIndex/DIMENSION) * DIMENSION).Take(DIMENSION).ToList ();
 		}
 
-        private List<Cell> line(int index, int offset)
-        {
-            var cell = this [index];
-			List<Cell> r = new List<Cell>(){ cell };
-			index += offset;
+        private List<Cell> line (int index, int offset)
+		{
+			var column = index % DIMENSION;
+			var row = index / DIMENSION;
+			offset = Math.Abs (offset);
 
-            while ((cell = this[index]) !=  null)
-            {
-                r.Add(cell);
-                index += offset;
-            }
+			var columnOffset = offset == 10 ? 1 : 0;
 
-            return r;
+			var list = new List<Cell>();
+
+			while (0 < row && column < DIMENSION) {
+				row--;
+				column += columnOffset;
+			}
+
+			while (row < DIMENSION && column >= 0) {
+				list.Add (this[row, column]);
+				row++;
+				column -= columnOffset;
+			}
+
+			return list;
         }
-
-
-//        private Cell NextCell(int index, int offset)
-//        {
-//            return this[index + offset];
-//        }
 
         /// <summary>
         /// Takes the cell.
@@ -288,12 +276,6 @@ namespace Yavalath
         /// </param>
 		public bool TakeCell(string cellCoords, int player = 0, bool takeOver = false)
         {
-            if (takeOver && cellCoords.ToLower() == "takeover")
-            {
-                Latest.Cell.Player = player;
-                return true;
-            }
-
             if (cellCoords.Length < 2 || cellCoords.Length > 3)
 				return false;
 
@@ -305,10 +287,14 @@ namespace Yavalath
                 var playableCells = cells.Where(c => c.Playable).ToArray();
                 Cell cell = playableCells.ElementAt(col);
 
-				if(cell.Player != 0) return false;
+				if(cell.Player != 0 && !takeOver) return false;
 
 				cell.Player = player;
-                Latest = new CellIndex {Cell = cell, Index = row*11 + (10 - playableCells.Length + col)};
+                Latest = new CellIndex {
+					Cell = cell, 
+					Index = row*11 + (10 - playableCells.Length + col),
+					Score = Algorithms.Evaluation(this, cell, player, null)
+				};
 
 				return true;
 			} catch (Exception) {

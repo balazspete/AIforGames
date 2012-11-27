@@ -41,10 +41,13 @@ namespace Yavalath
 //		                                    int oldscore = 0, Pattern[] patterns = null)
         public override string GetNextMove(Board board, int playerSymbol)
         {
-			var s = Algorithms.Negamax(board, playerSymbol, SearchDepth, oldscore:Score, patterns:Patterns);
+			Score -= board.Latest.Score;
+			var s = Algorithms.Minimax(board, board.Latest.Cell, 
+			                           SearchDepth, true, playerSymbol, Score);
 			Score = s.Score;
 			Console.WriteLine(s.Cell.Position);
 			return s.Cell.Position;
+			//return "";
         }
     }
 }

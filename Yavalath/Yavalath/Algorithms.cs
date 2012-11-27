@@ -27,17 +27,17 @@ namespace Yavalath
 					pattern = new int[]{ 0, player, 0, player, 0 },
 					weight = -2 },
 				new Pattern {
-					pattern = new int[]{ 0, player, player, 0, player },
-					weight = 10 },
-				new Pattern {
 					pattern = new int[]{ 0, player, 0, 0, player },
-					weight = 20 },
-				new Pattern {
-					pattern = new int[]{ player, 0, player, player, 0 },
 					weight = 10 },
+				new Pattern {
+					pattern = new int[]{ 0, player, player, 0, player },
+					weight = 100 },
 				new Pattern {
 					pattern = new int[]{ player, 0, 0, player, 0 },
-					weight = 20 },
+					weight = 10 },
+				new Pattern {
+					pattern = new int[]{ player, 0, player, player, 0 },
+					weight = 100 },
 				new Pattern {
 					pattern = new int[]{ player, player, player, player },
 					weight = 1000 }};
@@ -45,44 +45,75 @@ namespace Yavalath
 
 		public static double Evaluation (Board gameBoard, Cell cell, int playerSymbol, Pattern[] patterns = null)
 		{
-			Func<Cell, int> getPlayer = c => c.Player;
-			var lines = new int[][]{
-				gameBoard.UpDiagonal (cell).Select (getPlayer).ToArray (),
-				gameBoard.DownDiagonal (cell).Select (getPlayer).ToArray (),
-				gameBoard.Row (cell).Select (getPlayer).ToArray ()
-			};
-
-			Func<double> getScore = delegate {
-				double result = 0;
-				foreach (var line in lines) {
-					if(line.Where (e => e!=0).Count()==0) continue;
-					foreach (var pattern in patterns) {
-						var p = pattern.pattern;
-						for (var i = 0; i < line.Length - p.Length; i++) {
-							var subsequence = line.Skip(i).Take(p.Length);
-							if (subsequence.SequenceEqual(p)) {
-								Console.WriteLine ("Match {0}", string.Join (",", subsequence));
-								result += pattern.weight;
-							}
-						}
-					}
-				}
-				return result;
-			};
 
 			if(patterns == null) patterns = Patterns(playerSymbol);
+			var patterns2 = Patterns (-playerSymbol);
 
 			var t = cell.Player;
 			cell.Player = 0;
+			var lines = GetLines(gameBoard, cell);
+			var preScore = GetScore(lines, patterns) + GetScore(lines, patterns2);
 
-			var preScore = getScore();
 			cell.Player = t;
-			var postScore = getScore();
+			lines = GetLines(gameBoard, cell);
+			var postScore = GetScore(lines, patterns) + 2*GetScore(lines, patterns2);
 
-			Console.WriteLine ("Eval {0} {1}", postScore, preScore);
             return postScore - preScore;
         }
 
+		/// <summary>
+		/// Gets the correcponding row and diagonals for a <see cref="Yavalath.Cell"/>.
+		/// </summary>
+		/// <returns>
+		/// The player values for each cell.
+		/// </returns>
+		/// <param name='gameBoard'>
+		/// The Game board.
+		/// </param>
+		/// <param name='cell'>
+		/// The Cell.
+		/// </param>
+		private static int[][] GetLines (Board gameBoard, Cell cell)
+		{
+			Func<Cell, int> getPlayer = c => c.Player;
+			var t = gameBoard.UpDiagonal (cell).Select (getPlayer).ToArray ();
+			return new int[][]{
+				gameBoard.UpDiagonal (cell).Select (getPlayer).ToArray (),
+				gameBoard.DownDiagonal (cell).Select (getPlayer).ToArray (),
+				gameBoard.Row (cell).Select (getPlayer).ToArray () };
+		}
+
+		/// <summary>
+		/// Gets the score of a set of <see cref="Yavalath.Cell"/>s.
+		/// </summary>
+		/// <returns>
+		/// The score.
+		/// </returns>
+		/// <param name='lines'>
+		/// Set of <see cref="Yavalath.Cell"/>s.
+		/// </param>
+		/// <param name='patterns'>
+		/// Custom <see cref="Yavalath.Pattern"/>s.
+		/// </param>
+		private static double GetScore (int[][] lines, Pattern[] patterns = null)
+		{
+			double result = 0;
+			foreach (var line in lines) {
+				if(line.Where (e => e!=0).Count()==0) continue;
+				foreach (var pattern in patterns) {
+					var p = pattern.pattern;
+					for (var i = 0; i < line.Length - p.Length; i++) {
+						var subsequence = line.Skip(i).Take(p.Length);
+						if (string.Join (",", subsequence) == string.Join (",", p)) {
+							//Console.WriteLine ("Match {0} {1}", string.Join (",", subsequence), string.Join (",", p));
+							//Console.WriteLine(pattern.weight);
+							result += pattern.weight;
+						}
+					}
+				}
+			}
+			return result;
+		}
 
 		public struct SearchResult
 		{
@@ -95,37 +126,57 @@ namespace Yavalath
 			}
 		}
 
-
-
-//		public static SearchResult Negamax (Board board, int player, int height, 
-//			Cell cell = null, double oldscore = 0, Pattern[] patterns = null)
-//		{
-//			var emptyCells = board.EmptyCells ();
-//
-//
-//			if (height == 0 || emptyCells.Length == 0) {
-//				return new SearchResult {
-//					Score = oldscore + Evaluation(board, cell, player, patterns),
-//					Cell = cell
-//				};
-//			} else {
-//				SearchResult temp, score = new SearchResult { Score=-1.0/0, Cell = null };
-//				foreach (var _cell in emptyCells) {
-//					_cell.Player = player;
-//					var _score = oldscore + (cell != null ? Evaluation(board, cell, player, patterns) : 0);
-//					temp = -Negamax(board, -player, height-1, _cell, _score, patterns);
-//					_cell.Player = 0;
-//					if(score.Cell == null && temp.Cell != null) score = temp;
-//					if(score.Score <= temp.Score) 
-//						score = temp;
-//				}
-//				return score;
-//			}
-//		}
-
-		public static int Negamax(Board board, Cell cell, int player)
+		/// <summary>
+		/// Select the next cell using MiniMax search
+		/// </summary>
+		/// <param name='board'>
+		/// The Game Board.
+		/// </param>
+		/// <param name='cell'>
+		/// The last chosen cell.
+		/// </param>
+		/// <param name='height'>
+		/// the height to which the search is ran.
+		/// </param>
+		/// <param name='maxing'>
+		/// If set to <c>true</c> maximising the score.
+		/// </param>
+		/// <param name='player'>
+		/// The Player.
+		/// </param>
+		/// <param name='originalScore'>
+		/// Original score.
+		/// </param>
+		public static SearchResult Minimax (Board board, Cell cell, int height, 
+		                                    bool maxing, int player, double originalScore = 0)
 		{
-
+			var emptyCells = board.EmptyCells ();
+			if (height == 0 || emptyCells.Length == 0) {
+				//return Evaluatio
+				return new SearchResult {
+					Score = originalScore + Evaluation (board, cell, player),
+					Cell = cell
+				};
+			} else {
+				SearchResult temp, score = new SearchResult {
+					Score = maxing ? -1.0/0 : 1.0/0,
+					Cell = null
+				};
+				foreach (var _cell in emptyCells) {
+					_cell.Player = player;
+					temp = Minimax (board, _cell, height-1, !maxing, player*-1);
+					_cell.Player = 0;
+					if (maxing) {
+						if(temp.Score > score.Score) score = temp; 
+					} else {
+						if(temp.Score < score.Score) score = temp; 
+					}
+					if(height==3) Console.WriteLine(temp.Cell.Position);
+				}
+				//score.Cell = cell;
+				score.Score += Evaluation (board, cell, player);
+				return score;
+			}
 		}
 
     }

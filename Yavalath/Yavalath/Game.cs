@@ -45,7 +45,6 @@ namespace Yavalath
                 round++; 
                 while(!GameBoard.TakeCell(CurrentPlayer.GetNextMove(GameBoard, Players[CurrentPlayer]), Players[CurrentPlayer], round == 2)) 
                     Console.WriteLine("Invalid move, please try again...");
-
                 GameBoard.Print();
 
                 if((result = HasWonOrLost()) != null)
@@ -56,8 +55,7 @@ namespace Yavalath
                         "\n{0} has won the game!", 
                         winner.First().Key.Name);
                     return;
-                }
-                NextPlayer();
+                }NextPlayer();
                 Console.WriteLine("\nIt's {0}'s turn...", CurrentPlayer.Name);
 
             }
@@ -133,7 +131,7 @@ namespace Yavalath
         
         static void Main ()
         {
-            var game = new Game(new HumanPlayer("1"), new ComputerPlayer("2", 1));
+            var game = new Game(new ComputerPlayer("1", 2), new ComputerPlayer("2", 3));
             game.Run();
         }
 	}
