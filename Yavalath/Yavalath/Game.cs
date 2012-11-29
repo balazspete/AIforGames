@@ -43,14 +43,17 @@ namespace Yavalath
             while(true)
             {
                 round++; 
-                while(!GameBoard.TakeCell(CurrentPlayer.GetNextMove(GameBoard, Players[CurrentPlayer]), Players[CurrentPlayer], round == 2)) 
+                while(!GameBoard.TakeCell(CurrentPlayer.GetNextMove(
+					GameBoard, Players[CurrentPlayer]), Players[CurrentPlayer], round == 2)) {
                     Console.WriteLine("Invalid move, please try again...");
+				}
                 GameBoard.Print();
 
                 if((result = HasWonOrLost()) != null)
                 {
                     var winner = Players
-                        .Where(p => p.Value == (result.Value ? 1 : -1) * Players[CurrentPlayer]).ToArray();
+                        .Where(p => p.Value == (result.Value ? 1 : -1) * Players[CurrentPlayer])
+						.ToArray();
                     Console.WriteLine(
                         "\n{0} has won the game!", 
                         winner.First().Key.Name);
@@ -85,10 +88,8 @@ namespace Yavalath
             var diagonal2 = CheckNeighbour(latest.Index, -10) + CheckNeighbour(latest.Index, 10);
             var horizontal = CheckNeighbour(latest.Index, -1) + CheckNeighbour(latest.Index, 1);
 
-            Console.WriteLine("{0} {1} {2}", diagonal1, diagonal2, horizontal);
             count += new int[]{diagonal1, diagonal2, horizontal}.Max();
 
-            Console.WriteLine("{0} ", count);
             if (count >= 4) return true;
             else if (count == 3) return false;
             else return null;
@@ -128,10 +129,9 @@ namespace Yavalath
             return count;
         }
 
-        
         static void Main ()
         {
-            var game = new Game(new ComputerPlayer("1", 2), new ComputerPlayer("2", 3));
+            var game = new Game(new HumanPlayer("1"), new ComputerPlayer("2", 2));
             game.Run();
         }
 	}

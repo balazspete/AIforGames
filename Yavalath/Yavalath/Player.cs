@@ -29,12 +29,15 @@ namespace Yavalath
     {
 		private Algorithms.Pattern[] Patterns;
 		private int SearchDepth;
+		private bool KillerHeuristic;
 
-		public ComputerPlayer (string name, int searchDepth, Algorithms.Pattern[] patterns = null)
+		public ComputerPlayer (string name, int searchDepth, 
+			Algorithms.Pattern[] patterns = null, bool killerHeuristic = false)
 		{
 			Name = name;
 			SearchDepth = searchDepth;
 			Patterns = patterns;
+			KillerHeuristic = killerHeuristic;
 		}
 
 //		public static SearchResult Negamax (Board board, Cell cell, int player, int height, 
@@ -42,12 +45,13 @@ namespace Yavalath
         public override string GetNextMove(Board board, int playerSymbol)
         {
 			Score -= board.Latest.Score;
-			var s = Algorithms.Minimax(board, board.Latest.Cell, 
-			                           SearchDepth, true, playerSymbol, Score);
+			var s = Algorithms.ABNegamax(board, board.Latest.Cell, SearchDepth, 
+				new Algorithms.SearchResult {Score = -1.0/0, Count = 0}, 
+				new Algorithms.SearchResult {Score = 1.0/0}, playerSymbol);
+
 			Score = s.Score;
-			Console.WriteLine(s.Cell.Position);
+			Console.WriteLine("Position: {0}; Evaluation count: {1}", s.Cell.Position, s.Count);
 			return s.Cell.Position;
-			//return "";
         }
     }
 }

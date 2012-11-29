@@ -13,7 +13,6 @@ namespace Yavalath
             public double weight;
         }
 
-
 		private static Pattern[] Patterns (int player)
 		{
 			return new Pattern[] {
@@ -43,6 +42,21 @@ namespace Yavalath
 					weight = 1000 }};
 		}
 
+		/// <summary>
+		/// Evaluate the score for a specific <see cref="Yavalath.Cell"/>.
+		/// </summary>
+		/// <param name='gameBoard'>
+		/// Game board.
+		/// </param>
+		/// <param name='cell'>
+		/// Cell.
+		/// </param>
+		/// <param name='playerSymbol'>
+		/// Player symbol.
+		/// </param>
+		/// <param name='patterns'>
+		/// Patterns.
+		/// </param>
 		public static double Evaluation (Board gameBoard, Cell cell, int playerSymbol, Pattern[] patterns = null)
 		{
 
@@ -119,6 +133,7 @@ namespace Yavalath
 		{
 			public double Score;
 			public Cell Cell;
+			public int Count;
 
 			public static SearchResult operator -(SearchResult sr){
 				sr.Score *= -1;
@@ -127,58 +142,59 @@ namespace Yavalath
 		}
 
 		/// <summary>
-		/// Select the next cell using MiniMax search
+		/// Execute Alpha - Beta Negemax search to find the next best cell.
 		/// </summary>
+		/// <returns>
+		/// The best cell and its score.
+		/// </returns>
 		/// <param name='board'>
 		/// The Game Board.
 		/// </param>
 		/// <param name='cell'>
-		/// The last chosen cell.
+		/// The last taken <see cref="Yavalath.cell"/>.
 		/// </param>
 		/// <param name='height'>
-		/// the height to which the search is ran.
+		/// The Height to which the search should be run until.
 		/// </param>
-		/// <param name='maxing'>
-		/// If set to <c>true</c> maximising the score.
+		/// <param name='achievable'>
+		/// The Achievable Cell.
+		/// </param>
+		/// <param name='hope'>
+		/// Hope.
 		/// </param>
 		/// <param name='player'>
-		/// The Player.
+		/// Player.
 		/// </param>
-		/// <param name='originalScore'>
-		/// Original score.
-		/// </param>
-		public static SearchResult Minimax (Board board, Cell cell, int height, 
-		                                    bool maxing, int player, double originalScore = 0)
+		public static SearchResult ABNegamax (Board board, Cell cell, int height, 
+			SearchResult achievable, SearchResult hope, int player)
 		{
 			var emptyCells = board.EmptyCells ();
 			if (height == 0 || emptyCells.Length == 0) {
-				//return Evaluatio
 				return new SearchResult {
-					Score = originalScore + Evaluation (board, cell, player),
-					Cell = cell
+					Score = Evaluation (board, cell, player),
+					Cell = cell,
+					Count = 1
 				};
 			} else {
-				SearchResult temp, score = new SearchResult {
-					Score = maxing ? -1.0/0 : 1.0/0,
-					Cell = null
-				};
-				foreach (var _cell in emptyCells) {
+				SearchResult temp;
+				var score = Evaluation (board, cell, player);
+				achievable.Count += 1;
+
+				foreach (var _cell in emptyCells)
+				{
 					_cell.Player = player;
-					temp = Minimax (board, _cell, height-1, !maxing, player*-1);
+					temp = -ABNegamax (board, _cell, height-1, -hope, -achievable, -player);
+					temp.Score += score;
 					_cell.Player = 0;
-					if (maxing) {
-						if(temp.Score > score.Score) score = temp; 
-					} else {
-						if(temp.Score < score.Score) score = temp; 
+					if (temp.Score >= hope.Score) {
+						return temp;
 					}
-					if(height==3) Console.WriteLine(temp.Cell.Position);
+					achievable.Count = temp.Count = achievable.Count + temp.Count;
+					achievable = temp.Score >= achievable.Score ? temp : achievable;
 				}
-				//score.Cell = cell;
-				score.Score += Evaluation (board, cell, player);
-				return score;
+				return achievable;
 			}
 		}
-
     }
 }
 

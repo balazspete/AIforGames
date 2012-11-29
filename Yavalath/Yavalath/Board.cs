@@ -34,7 +34,8 @@ namespace Yavalath
 		/// <param name='player'>
 		/// Indicates which player takes up the cell
 		/// </param>
-		public Cell (int border, bool playable = false, int index = -1, string position = "", int player = 0)
+		public Cell (int border, bool playable = false, 
+			int index = -1, string position = "", int player = 0)
 		{
 			Border = border;
 			Playable = playable;
@@ -112,16 +113,6 @@ namespace Yavalath
         /// </summary>
 		public Board ()
 		{
-//			int i = 0, j = 0;
-//			for (i = 0; i < 11; i++) {
-//				var c = 0;
-//				for (j = 0; j < 11; j++) {
-//					var playable = PlayableCells[i][j] == 1;
-//					if(playable) c++;
-//					Cells[i][j] = new Cell(Borders[i][j], playable, playable ? String.Format("{0}{1}", (char)('A'-1+i), c) : "");
-//				}
-//			}
-
 			var count = 0;
 			for(var i = 0; i < Cells.Length; i++) {
 				var playable = PlayableCells[i] == 1;
@@ -130,7 +121,8 @@ namespace Yavalath
 				Cells[i] = new Cell(Borders[i],
 					playable: playable,
 					index: i,
-				    position: playable ? String.Format("{0}{1}", (char)('A'-1+(i/DIMENSION)), count-1) : ""
+				    position: playable ? 
+						String.Format("{0}{1}", (char)('A'-1+(i/DIMENSION)), count-1) : ""
 				);
 			}
 		}
@@ -302,8 +294,6 @@ namespace Yavalath
 				return false;
 			}
 		}
-
-
 	}
 }
 
