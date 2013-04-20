@@ -1,0 +1,15 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Board.cs">
+    <Files>
+      <File FileName="Algorithms.cs" Line="61" Column="4" />
+      <File FileName="Board.cs" Line="207" Column="8" />
+      <File FileName="Game.cs" Line="60" Column="52" />
+      <File FileName="Player.cs" Line="7" Column="15" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
